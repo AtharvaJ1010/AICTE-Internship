@@ -22,11 +22,9 @@ POSE_PAIRS = [
     ["REye", "REar"], ["Nose", "LEye"], ["LEye", "LEar"]
 ]
 
-# Load DNN Model
 net = cv2.dnn.readNetFromTensorflow("graph_opt.pb")
 inWidth, inHeight = 368, 368
 
-# Streamlit UI
 st.title("Advanced Human Pose Estimation")
 st.markdown(
     """
@@ -37,24 +35,20 @@ st.markdown(
     """
 )
 
-# Settings
 threshold = st.slider("Key Point Detection Threshold", 0, 100, 20, 5) / 100
 keypoint_color = st.color_picker("Key Point Color", "#FF0000")
 line_color = st.color_picker("Line Color", "#00FF00")
 
-# Image Enhancements
 st.subheader("Image Enhancement Tools")
 brightness = st.slider("Adjust Brightness", 0.5, 3.0, 1.0)
 contrast = st.slider("Adjust Contrast", 0.5, 3.0, 1.0)
 sharpness = st.slider("Adjust Sharpness", 0.5, 3.0, 1.0)
 
-# Additional Features
 st.subheader("Additional Features")
 annotate_image = st.checkbox("Annotate with Pose Names", value=False)
 convert_to_grayscale = st.checkbox("Convert Image to Grayscale", value=False)
 rotation_angle = st.slider("Rotate Image (Degrees)", -180, 180, 0, 5)
 
-# File Uploader and Image Loading
 st.subheader("Upload Image")
 img_file_buffer = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
 
@@ -63,7 +57,6 @@ if img_file_buffer is not None:
 else:
     image = Image.open(DEMO_IMAGE)
 
-# Apply Enhancements
 enhancer = ImageEnhance.Brightness(image)
 image = enhancer.enhance(brightness)
 
@@ -73,28 +66,24 @@ image = enhancer.enhance(contrast)
 enhancer = ImageEnhance.Sharpness(image)
 image = enhancer.enhance(sharpness)
 
-# Convert to Grayscale if Selected
 if convert_to_grayscale:
     image = ImageOps.grayscale(image).convert("RGB")  # Convert back to RGB
 
-# Rotate Image
 if rotation_angle != 0:
     image = image.rotate(rotation_angle, expand=True)
 
-# Convert PIL Image to NumPy Array
 image_np = np.array(image)
 
-# Ensure image has 3 channels (Fixes OpenCV error)
-if len(image_np.shape) == 2:  # Grayscale image
+if len(image_np.shape) == 2:  
     image_np = cv2.cvtColor(image_np, cv2.COLOR_GRAY2RGB)
-elif image_np.shape[-1] == 4:  # RGBA image
+elif image_np.shape[-1] == 4:  
     image_np = cv2.cvtColor(image_np, cv2.COLOR_RGBA2RGB)
 
-# Display Processed Image
+
 st.subheader("Processed Image")
 st.image(image, caption="Processed Image", use_container_width=True)
 
-# Pose Detection Function
+
 @st.cache_data
 def poseDetector(frame, threshold, keypoint_color, line_color, annotate_image):
     frameWidth, frameHeight = frame.shape[1], frame.shape[0]
@@ -130,15 +119,13 @@ def poseDetector(frame, threshold, keypoint_color, line_color, annotate_image):
 
     return frame, points
 
-# Process Image with Pose Detection
+
 with st.spinner("Detecting Poses..."):
     output, points = poseDetector(image_np, threshold, keypoint_color, line_color, annotate_image)
 
-# Display Pose Detection Output
 st.subheader("Pose Detection Output")
 st.image(output, caption="Pose Detection", use_container_width=True)
 
-# Save and Download Pose Data
 pose_data = {"points": points}
 st.subheader("Download Pose Data")
 st.download_button(
