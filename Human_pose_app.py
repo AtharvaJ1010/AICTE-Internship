@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import json
 
-# Constants
+
 DEMO_IMAGE = 'stand.jpg'
 
 BODY_PARTS = {
@@ -135,5 +135,5 @@ st.download_button(
     mime="application/json"
 )
 
-# Footer (Blank Line)
+
 st.markdown("<hr>", unsafe_allow_html=True)
